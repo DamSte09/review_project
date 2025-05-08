@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Recenzje</title>
+</head>
+<body>
+    <h1>Dodaj recenzję</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Wyślij</button>
+    </form>
+
+    <h2>Poprzednie recenzje:</h2>
+    {% for review in reviews %}
+    <div style="margin: 20px 0; padding: 10px; border: 1px solid #ccc;">
+        <p>{{ review.text }}</p>
+        <small>{{ review.pub_date }}</small>
+    </div>
+    {% endfor %}
+</body>
+</html>
