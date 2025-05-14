@@ -8,6 +8,8 @@
 # database or a cache. For examples, see the Awesome Compose repository:
 # https://github.com/docker/awesome-compose
 
+
+
 services:
   web:
     build: .
@@ -17,40 +19,67 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - CELERY_BROKER=amqp://rabbitmq
+      - CELERY_BROKER_URL=amqp://rabbitmq
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
     depends_on:
-      - rabbitmq
-      - redis
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - app_network
 
-  celery-worker: 
-    build: . 
+  celery-worker:
+    build: .
     command: celery -A review_project worker --loglevel=info
     volumes:
       - .:/app
     environment:
-      - CELERY_BROKER=amqp://rabbitmq
+      - CELERY_BROKER_URL=amqp://rabbitmq
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
     depends_on:
-      - rabbitmq
-      - redis
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - app_network
 
   rabbitmq:
     image: rabbitmq:3.12-management
-    ports:
-      - "15672:15672"
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    ports:
+    - "5672:5672"
+    - "15672:15672"
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7
-    ports:
-      - "6379:6379"
     volumes:
       - redis_data:/data
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   rabbitmq_data:
   redis_data:
+
+networks:
+  app_network:
+    driver: bridge
+
 
 # The commented out section below is an example of how to define a PostgreSQL
 # database that your application can use. `depends_on` tells Docker Compose to

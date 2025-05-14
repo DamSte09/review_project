@@ -15,7 +15,18 @@
     {% for review in reviews %}
     <div style="margin: 20px 0; padding: 10px; border: 1px solid #ccc;">
         <p>{{ review.text }}</p>
+        <p>
+            Sentyment:
+            <span class=" {{ review.sentiment }}">
+                {% if review.sentiment %}
+                    {{ review.sentiment }}
+                {% else %}
+                    W trakcie...
+                {% endif %}
+            </span>
+        </p>
         <small>{{ review.pub_date }}</small>
+
     </div>
     {% endfor %}
 </body>

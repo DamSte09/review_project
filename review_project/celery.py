@@ -5,7 +5,8 @@ from celery import Celery
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'review_project.settings')
 
 # Utwórz instancję Celery
-app = Celery('review_project')
+app = Celery('review_project',
+             include=['reviews.tasks'])
 
 # Wczytaj konfigurację z settings.py (prefix "CELERY_")
 app.config_from_object('django.conf:settings', namespace='CELERY')

@@ -1,13 +1,14 @@
 from django.shortcuts import render, redirect
 from .forms import ReviewForm
 from .models import Review
+from .tasks import analyze_sentiment
 
 def review_list(request):
     if request.method == 'POST':
         form = ReviewForm(request.POST)
         if form.is_valid():
-            review = form.save(commit=False)
-            review.save()
+            review = form.save()
+            analyze_sentiment.delay(review.id)
             return redirect('review_list')
     else:
         form = ReviewForm()
