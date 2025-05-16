@@ -8,12 +8,10 @@
 # database or a cache. For examples, see the Awesome Compose repository:
 # https://github.com/docker/awesome-compose
 
-
-
 services:
   web:
     build: .
-    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    command: sh -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
     ports:
@@ -26,14 +24,13 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    networks:
-      - app_network
-
+ 
   celery-worker:
     build: .
     command: celery -A review_project worker --loglevel=info
     volumes:
       - .:/app
+      - huggingface_cache:/root/.cache/huggingface
     environment:
       - CELERY_BROKER_URL=amqp://rabbitmq
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
@@ -42,18 +39,15 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    networks:
-      - app_network
+
 
   rabbitmq:
     image: rabbitmq:3.12-management
+    ports:
+      - "5672:5672"  # AMQP protocol
+      - "15672:15672"  # Management UI
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
-    ports:
-    - "5672:5672"
-    - "15672:15672"
-    networks:
-      - app_network
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "ping"]
       interval: 10s
@@ -62,10 +56,10 @@ services:
 
   redis:
     image: redis:7
+    ports:
+      - "6379:6379"  # Redis default port
     volumes:
       - redis_data:/data
-    networks:
-      - app_network
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -75,10 +69,7 @@ services:
 volumes:
   rabbitmq_data:
   redis_data:
-
-networks:
-  app_network:
-    driver: bridge
+  huggingface_cache:
 
 
 # The commented out section below is an example of how to define a PostgreSQL
