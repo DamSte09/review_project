@@ -5,6 +5,7 @@ from transformers import AutoModelForSequenceClassification
 # Ładowanie modelu na poziomie modułu
 
 
+
 @shared_task(bind=True)
 def analyze_sentiment(self, review_id):
     try:
@@ -16,3 +17,5 @@ def analyze_sentiment(self, review_id):
         return {'status': 'success', 'review_id': review_id, 'review_sentiment': review.sentiment}
     except Exception as e:
         self.retry(exc=e, countdown=60)
+
+

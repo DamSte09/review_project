@@ -17,7 +17,7 @@
         <p>{{ review.text }}</p>
         <p>
             Sentyment:
-            <span class=" {{ review.sentiment }}">
+            <span class="sentiment" data-review-id="{{ review.id }}">
                 {% if review.sentiment %}
                     {{ review.sentiment }}
                 {% else %}
@@ -29,5 +29,23 @@
 
     </div>
     {% endfor %}
+
+    <script>
+function updateSentiments() {
+    document.querySelectorAll('.sentiment').forEach(function(span) {
+        const reviewId = span.getAttribute('data-review-id');
+        fetch(`/api/review/${reviewId}/sentiment/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.sentiment && span.textContent.trim() !== data.sentiment) {
+                    span.textContent = data.sentiment;
+                }
+            });
+    });
+}
+
+// Odświeżanie co 5 sekund
+setInterval(updateSentiments, 5000);
+</script>
 </body>
 </html>
