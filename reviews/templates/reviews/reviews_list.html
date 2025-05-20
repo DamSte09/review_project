@@ -90,12 +90,35 @@
     }
 
     .sentiment {
-        color: #27ae60;
-        font-weight: bold;
-        padding: 3px 8px;
-        border-radius: 4px;
-        background-color: rgba(39, 174, 96, 0.1);
-    }
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
+.sentiment-very-positive {
+    background-color: #2ecc71;
+    color: white;
+}
+
+.sentiment-very-negative {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.sentiment-positive {
+    background-color: #27ae60;
+    color: white;
+}
+
+.sentiment-negative {
+    background-color: #c0392b;
+    color: white;
+}
+
+.sentiment-neutral {
+    background-color: #f1c40f;
+    color: black;
+}
 
     small {
         display: block;
@@ -133,13 +156,13 @@
         <p>{{ review.text }}</p>
         <p>
             Sentyment:
-            <span class="sentiment" data-review-id="{{ review.id }}">
-                {% if review.sentiment %}
-                    {{ review.sentiment }}
-                {% else %}
-                    W trakcie...
-                {% endif %}
-            </span>
+            <span class="sentiment sentiment-{{ review.sentiment|slugify }}" data-review-id="{{ review.id }}">
+    {% if review.sentiment %}
+        {{ review.sentiment }}
+    {% else %}
+        W trakcie...
+    {% endif %}
+</span>
         </p>
         <small>{{ review.pub_date }}</small>
 
