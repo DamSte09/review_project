@@ -7,4 +7,4 @@ class Review(models.Model):
     pub_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.text[:50]
+        return self.text[:50] # zwraca 50 znaków w widokach

@@ -157,34 +157,44 @@
         <p>
             Sentyment:
             <span class="sentiment sentiment-{{ review.sentiment|slugify }}" data-review-id="{{ review.id }}">
-    {% if review.sentiment %}
-        {{ review.sentiment }}
-    {% else %}
-        W trakcie...
-    {% endif %}
-</span>
+                {% if review.sentiment %}
+                    {{ review.sentiment }}
+                {% else %}
+                    W trakcie...
+                {% endif %}
+            </span>
         </p>
         <small>{{ review.pub_date }}</small>
 
     </div>
     {% endfor %}
 
-    <script>
-function updateSentiments() {
-    document.querySelectorAll('.sentiment').forEach(function(span) {
-        const reviewId = span.getAttribute('data-review-id');
-        fetch(`/api/review/${reviewId}/sentiment/`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.sentiment && span.textContent.trim() !== data.sentiment) {
-                    span.textContent = data.sentiment;
-                }
-            });
-    });
-}
+<script>
+    function updateSentiments() {
+        document.querySelectorAll('.sentiment').forEach(function(span) {
+            const reviewId = span.getAttribute('data-review-id');
+            fetch(`/api/review/${reviewId}/sentiment/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.sentiment && span.textContent.trim() !== data.sentiment) {
+                        // Usuń wszystkie klasy sentiment-*
+                        span.classList.forEach(className => {
+                            if (className.startsWith('sentiment-')) {
+                                span.classList.remove(className);
+                            }
+                        });
+                        
+                        // Ustaw nowy tekst i dodaj odpowiednią klasę
+                        span.textContent = data.sentiment;
+                        span.classList.add('sentiment');
+                        span.classList.add(`sentiment-${data.sentiment.toLowerCase().replace(' ', '-')}`);
+                    }
+                });
+        });
+    }
 
-// Odświeżanie co 5 sekund
-setInterval(updateSentiments, 5000);
+    // Odświeżanie co 5 sekund (zmieniłem na 5 sekund zamiast 50)
+    setInterval(updateSentiments, 5000);
 </script>
 </body>
 </html>
